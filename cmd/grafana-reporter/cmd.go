@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -22,6 +23,21 @@ func (responseWriter) WriteHeader(statusCode int) {}
 
 func (rw *responseWriter) Write(b []byte) (int, error) {
 	return rw.buf.Write(b)
+}
+
+func buildOutputPath() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.SetOutput(os.Stdout)
+		log.Fatal(err)
+	}
+
+	// create output directory, if it doesn't exist already
+	outputPath := cwd + "/" + *outputDir
+	if _, err := os.Stat(outputPath); os.IsNotExist(err) {
+		_ = os.Mkdir(outputPath, os.ModePerm)
+	}
+	return outputPath + "/" + *outputFile
 }
 
 func buildVariableList(varList string) string {
@@ -54,7 +70,8 @@ func cmdHandler(router *mux.Router) error {
 	router.ServeHTTP(&rw, rq)
 
 	/* create the file here so handler can set the filename first, when appropriate */
-	fp, err := os.Create(*outputFile)
+	outputPath := buildOutputPath()
+	fp, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
