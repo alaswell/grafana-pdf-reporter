@@ -27,20 +27,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var proto = flag.String("proto", "http://", "Grafana Protocol. Change to 'https://' if Grafana is using https. Reporter will still serve http.")
+var proto = flag.String("proto", "https://", "Grafana Protocol. Change to 'http://' if Grafana is using http. Reporter will still serve http.")
 var ip = flag.String("ip", "localhost:3000", "Grafana IP and port.")
 var port = flag.String("port", ":8686", "Port to serve on.")
 var templateDir = flag.String("templates", "templates/", "Directory for custom TeX templates.")
-var sslCheck = flag.Bool("ssl-check", true, "Check the SSL issuer and validity. Set this to false if your Grafana serves https using an unverified, self-signed certificate.")
+var sslCheck = flag.Bool("ssl-check", false, "Check the SSL issuer and validity. Set this to false if your Grafana serves https using an unverified, self-signed certificate.")
 var gridLayout = flag.Bool("grid-layout", false, "Enable grid layout (-grid-layout=1). Panel width and height will be calculated based off Grafana gridPos width and height.")
 
 //cmd line mode params
-var cmdMode = flag.Bool("cmd_enable", false, "Enable command line mode. Generate report from command line without starting webserver (-cmd_enable=1).")
+var cmdMode = flag.Bool("cmd_enable", true, "Enable command line mode. Generate report from command line without starting webserver (-cmd_enable=1).")
 var dashboard = flag.String("cmd_dashboard", "", "Dashboard identifier. Required (and only used) in command line mode.")
 var dashboardAsOutputFile = flag.Bool("cmd_db_o", true, "Dashboard name as Output file. Required (and only used) in command line mode. Overrides cmd_o flag when set to true.")
 var apiKey = flag.String("cmd_apiKey", "", "Grafana api key. Required (and only used) in command line mode.")
 var apiVersion = flag.String("cmd_apiVersion", "v5", "Api version: [v4, v5]. Required (and only used) in command line mode, example: -apiVersion v5.")
-var outputFile = flag.String("cmd_o", "out.pdf", "Output file. Required (and only used) in command line mode.")
+var outputFile = flag.String("cmd_o", "out.pdf", "Output file. Required (and only used) in command line mode. Overridden by cmd_db_o flag when set to true.")
 var timeSpan = flag.String("cmd_ts", "NULL", "Time span. Required (and only used) in command line mode.")
 var template = flag.String("cmd_template", "", "Specify a custom TeX template file. Only used in command line mode, but is optional even there.")
 var variableList = flag.String("cmd_vars", "", "Specify a comma-separated list of dashboard specific variables to pass onto the query. Only used in command line mode (-cmd_vars numYears=3,geo=NA).")
