@@ -37,11 +37,13 @@ var gridLayout = flag.Bool("grid-layout", false, "Enable grid layout (-grid-la
 //cmd line mode params
 var cmdMode = flag.Bool("cmd_enable", false, "Enable command line mode. Generate report from command line without starting webserver (-cmd_enable=1).")
 var dashboard = flag.String("cmd_dashboard", "", "Dashboard identifier. Required (and only used) in command line mode.")
+var dashboardAsOutputFile = flag.Bool("cmd_db_o", true, "Dashboard name as Output file. Required (and only used) in command line mode. Overrides cmd_o flag when set to true.")
 var apiKey = flag.String("cmd_apiKey", "", "Grafana api key. Required (and only used) in command line mode.")
 var apiVersion = flag.String("cmd_apiVersion", "v5", "Api version: [v4, v5]. Required (and only used) in command line mode, example: -apiVersion v5.")
 var outputFile = flag.String("cmd_o", "out.pdf", "Output file. Required (and only used) in command line mode.")
-var timeSpan = flag.String("cmd_ts", "from=now-3h&to=now", "Time span. Required (and only used) in command line mode.")
+var timeSpan = flag.String("cmd_ts", "NULL", "Time span. Required (and only used) in command line mode.")
 var template = flag.String("cmd_template", "", "Specify a custom TeX template file. Only used in command line mode, but is optional even there.")
+var variableList = flag.String("cmd_vars", "", "Specify a comma-separated list of dashboard specific variables to pass onto the query. Only used in command line mode (-cmd_vars numYears=3,geo=NA).")
 
 func main() {
 	flag.Parse()
@@ -71,10 +73,12 @@ func main() {
 	if *cmdMode {
 		log.Printf("Called with command line mode enabled, will save report to file and exit.")
 		log.Printf("Called with command line mode 'dashboard' '%s'", *dashboard)
+		log.Printf("Called with command line mode 'dashboardAsOutputFile' '%v'", *dashboardAsOutputFile)
 		log.Printf("Called with command line mode 'apiKey' '%s'", *apiKey)
 		log.Printf("Called with command line mode 'apiVersion' '%s'", *apiVersion)
 		log.Printf("Called with command line mode 'outputFile' '%s'", *outputFile)
 		log.Printf("Called with command line mode 'timeSpan' '%s'", *timeSpan)
+		log.Printf("Called with command line mode 'variableList' '%v'", *variableList)
 		if template != nil && *template != "" {
 			log.Printf("Called with command line mode 'template' '%s'", *template)
 		}

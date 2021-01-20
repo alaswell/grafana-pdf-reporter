@@ -80,6 +80,10 @@ func addFilenameHeader(w http.ResponseWriter, title string) {
 	filename = strings.TrimRight(filename, "\"")
 	filename += ".pdf"
 	log.Println("Extracted filename from dashboard title: ", filename)
+	if *dashboardAsOutputFile {
+		log.Println("Command Line Mode: Using dashboard title as filename: ", filename)
+		*outputFile = filename
+	}
 	header := fmt.Sprintf("inline; filename=\"%s\"", filename)
 	w.Header().Add("Content-Disposition", header)
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type responseWriter struct {
@@ -23,28 +24,41 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 	return rw.buf.Write(b)
 }
 
-func cmdHandler(router *mux.Router) error {
-	fp, err := os.Create(*outputFile)
-	if err != nil {
-		return err
+func buildVariableList(varList string) string {
+	retStr := ""
+	if varList != "" {
+		keyPairs := strings.Split(varList, ",")
+		for _, kp := range keyPairs {
+			retStr = retStr + "&var-" + kp
+		}
 	}
-	defer fp.Close()
+	return retStr
+}
 
-	rqStr := "/api/v5/report/%s?apitoken=%s&%s"
+func cmdHandler(router *mux.Router) error {
+	rqStr := "/api/v5/report/%s?apitoken=%s&%s%s"
 	if *apiVersion == "v4" {
-		rqStr = "/api/report/%s?apitoken=%s&%s"
+		rqStr = "/api/report/%s?apitoken=%s&%s%s"
 	}
 
 	if template != nil && *template != "" {
 		rqStr += "&template=" + *template
 	}
 
-	rq, err := http.NewRequest("GET", fmt.Sprintf(rqStr, *dashboard, *apiKey, *timeSpan), nil)
+	varList := buildVariableList(*variableList)
+	rq, err := http.NewRequest("GET", fmt.Sprintf(rqStr, *dashboard, *apiKey, *timeSpan, varList), nil)
 	if err != nil {
 		return err
 	}
 	rw := responseWriter{}
 	router.ServeHTTP(&rw, rq)
+
+	/* create the file here so handler can set the filename first, when appropriate */
+	fp, err := os.Create(*outputFile)
+	if err != nil {
+		return err
+	}
+	defer fp.Close()
 
 	_, err = io.Copy(fp, &rw.buf)
 	return err
